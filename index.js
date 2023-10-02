@@ -161,7 +161,7 @@ io.on("connection", (socket) => {
         socketToId.set(socket.id, id);
         idToSocket.set(id, socket.id);
         idToConnectionSocket.set(id, socket);
-        console.log("registered");
+        console.log(`registered: ${id}`);
     });
     socket.on("disconnect", () => {
         var id = socketToId.get(socket.id);
