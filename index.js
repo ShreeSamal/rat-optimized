@@ -157,6 +157,7 @@ app.get('/record/:id/:time', async (req, res)=>{
 
 //io operations
 io.on("connection", (socket) => {
+    console.log("device connected");
     socket.on("register", (id) => {
         socketToId.set(socket.id, id);
         idToSocket.set(id, socket.id);
