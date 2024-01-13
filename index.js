@@ -49,13 +49,12 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   const {email, password} = req.body;
   //remove callback
-  const user = await User.findOne({email:email, password:password});
-  if(user){
+  const user = await User.findOne({email:email});
+  if(user.password == password){
     res.json(user);
   }else{
     res.json({error:"user not found"});
   }
-  res.json({error:"user not found"});
 });
 
 app.post('/update-token', async (req, res) => {
@@ -72,9 +71,10 @@ app.get('/get-token/:id', async (req, res) => {
   const id = req.params.id;
   const user = await User.findOne({device_id:id});
   if(user){
-    res.json(user.token);
+    res.json({"token":user.token});
+  }else{
+    res.json({error:"user not found"});
   }
-  res.json({error:"user not found"});
 });
 
 app.get('/sms/:id', async (req, res)=>{
