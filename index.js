@@ -48,36 +48,33 @@ app.post('/register', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const {email, password} = req.body;
-  User.findOne({email:email, password:password}, (err, user)=>{
-    if(err){
-      res.json({message:err});
-    }else{
-      res.json(user);
-    }
-  });
+  //remove callback
+  const user = await User.findOne({email:email, password:password});
+  if(user){
+    res.json(user);
+  }else{
+    res.json({error:"user not found"});
+  }
   res.json({error:"user not found"});
 });
 
 app.post('/update-token', async (req, res) => {
   const {id, token} = req.body;
-  User.findOneAndUpdate({device_id:id}, {token:token}, (err, user)=>{
-    if(err){
-      res.json({message:err});
-    }else{
-      res.json(user);
-    }
-  });
+  const user = await User.findOneAndUpdate({device_id:id}, {token:token});
+  if(user){
+    res.json(user);
+  }else{
+    res.json({error:"user not found"});
+  }
 });
 
 app.get('/get-token/:id', async (req, res) => {
   const id = req.params.id;
-  User.findOne({device_id:id}, (err, user)=>{
-    if(err){
-      res.json({message:err});
-    }else{
-      res.json(user.token);
-    }
-  });
+  const user = await User.findOne({device_id:id});
+  if(user){
+    res.json(user.token);
+  }
+  res.json({error:"user not found"});
 });
 
 app.get('/sms/:id', async (req, res)=>{
