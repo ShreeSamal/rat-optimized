@@ -4,7 +4,13 @@ const idToSocket = new Map(); //mobileid to socket.id
 const idToConnectionSocket = new Map(); //mobileid to socket
 const { createServer } = require('http');
 const socketIo = require('socket.io');
+const mongoose = require('mongoose');
 const cors = require('cors');
+const User = require('./models/Users');
+
+mongoose.connect(`mongodb+srv://shreesamal1502:UoTwTt6dAG8r2mnl@cluster0.vqu96ih.mongodb.net/?retryWrites=true&w=majority`).then(()=>{
+    console.log("connected to db");
+})
 
 const app = express();
 
@@ -25,6 +31,53 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.send("Welcome to rat");
+});
+
+app.post('/register', async (req, res) => {
+    const {name, phone, email, password, device_id, token, parent_id} = req.body;
+    const user = new User({
+        name, phone, email, password, device_id, token, parent_id
+    });
+    try{
+        const savedUser = await user.save();
+        res.json(savedUser);
+    }catch(err){
+        res.json({message:err});
+    }
+});
+
+app.post('/login', async (req, res) => {
+  const {email, password} = req.body;
+  User.findOne({email:email, password:password}, (err, user)=>{
+    if(err){
+      res.json({message:err});
+    }else{
+      res.json(user);
+    }
+  });
+  res.json({error:"user not found"});
+});
+
+app.post('/update-token', async (req, res) => {
+  const {id, token} = req.body;
+  User.findOneAndUpdate({device_id:id}, {token:token}, (err, user)=>{
+    if(err){
+      res.json({message:err});
+    }else{
+      res.json(user);
+    }
+  });
+});
+
+app.get('/get-token/:id', async (req, res) => {
+  const id = req.params.id;
+  User.findOne({device_id:id}, (err, user)=>{
+    if(err){
+      res.json({message:err});
+    }else{
+      res.json(user.token);
+    }
+  });
 });
 
 app.get('/sms/:id', async (req, res)=>{
