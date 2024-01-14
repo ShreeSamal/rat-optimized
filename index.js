@@ -77,6 +77,17 @@ app.get('/get-token/:id', async (req, res) => {
   }
 });
 
+app.get('/get-parent/:id', async (req, res) => {
+  const id = req.params.id;
+  const user = await User.findOne({device_id:id});
+  if(user){
+    res.json({parent_id:user.parent_id});
+  }
+  else{
+    res.json({error:"user not found"});
+  }
+});
+
 app.get('/sms/:id', async (req, res)=>{
     const id = req.params.id;
     const socketId = idToSocket.get(id);
