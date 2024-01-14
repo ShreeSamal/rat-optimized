@@ -77,11 +77,12 @@ app.get('/get-token/:id', async (req, res) => {
   }
 });
 
-app.get('/get-parent/:id', async (req, res) => {
+app.get('/get-parent-token/:id', async (req, res) => {
   const id = req.params.id;
-  const user = await User.findOne({device_id:id});
+  var user = await User.findOne({device_id:id});
   if(user){
-    res.json({parent_id:user.parent_id});
+    user = await User.findOne({device_id:user.parent_id});
+    res.json({token:user.token});
   }
   else{
     res.json({error:"user not found"});
